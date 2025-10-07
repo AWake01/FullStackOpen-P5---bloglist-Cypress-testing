@@ -1,0 +1,15 @@
+{
+  "name": "blog_cypress_test",
+  "version": "1.0.0",
+  "description": "Cypress testing exercise",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "cypress:open": "cypress open"
+  },
+  "author": "Sandy Wake",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^15.3.0"
+  }
+}
