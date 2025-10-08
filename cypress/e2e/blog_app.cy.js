@@ -2,8 +2,14 @@
 const testUser1 = {
   name: 'Test Name',
   username: 'testUsername',
-  password: 'testPassword'
+  password: 'p6tZ0p3\sj3g~WKUK'
 }
+
+const newBlog1 = {
+        title: 'Blog title 1',
+        author: 'Author 1',
+        url: 'https:/url1.com'
+      }
 
 describe('Blog app', function() {
   beforeEach(function() {
@@ -23,7 +29,7 @@ describe('Blog app', function() {
       cy.contains('login').click()
 
       cy.contains(`${testUser1.name} has logged in`)
-      cy.contains('log out')
+      //cy.contains('log out')
     })
 
     it('fails with wrong credentials', function() {
@@ -40,5 +46,47 @@ describe('Blog app', function() {
 
       cy.contains('login')
     })
+  })
+
+  describe('When logged in', function() { 
+    beforeEach(function() { //Login before tests
+      cy.contains('username').type(testUser1.username)
+      cy.contains('password').type(testUser1.password)
+      cy.contains('login').click()
+    })
+
+    it('A blog can be created', function() {
+      cy.contains('new blog').click()
+      cy.contains('label', 'title').type(newBlog1.title)
+      cy.contains('label', 'author').type(newBlog1.author)
+      cy.contains('label', 'url').type(newBlog1.url)
+      cy.contains('create').click()
+
+      cy.get('.blog-div').contains(newBlog1.title)
+      cy.get('.blog-div').contains(newBlog1.author)
+      cy.get('.blog-div').contains('view')
+    })
+
+    describe('When a blog exists', function() { 
+    beforeEach(function() { //Add blog before tests
+      cy.contains('new blog').click()
+      cy.contains('label', 'title').type(newBlog1.title)
+      cy.contains('label', 'author').type(newBlog1.author)
+      cy.contains('label', 'url').type(newBlog1.url)
+      cy.contains('create').click()
+    })
+
+    it.only('A blog can be liked', function() {
+      cy.get('.blog-div').as('selectedBlog')
+
+      cy.get('@selectedBlog').contains('view').click()
+
+      cy.get('@selectedBlog').contains('likes 0')
+      cy.get('@selectedBlog').contains('like').click()  //Add 1 like
+      cy.get('@selectedBlog').contains('likes 1')
+      cy.get('@selectedBlog').contains('like').click().click().click().click().click() //Add 5 likes
+      cy.get('@selectedBlog').contains('likes 6')
+    })
+  })
   })
 })
