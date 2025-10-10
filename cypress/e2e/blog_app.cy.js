@@ -10,9 +10,9 @@ const testUser2 = {
   password: 'ITi)12}6G38v*-d,]'
 }
 
-const testBlog1 = { title: 'Blog title 1', author: 'Author 1', url: 'https:/url1.com' }
-const testBlog2 = { title: 'Blog title 2', author: 'Author 2', url: 'https:/url2.com' }
-const testBlog3 = { title: 'Blog title 3', author: 'Author 3', url: 'https:/url3.com' }
+const testBlog1 = { title: 'Blog title 1', author: 'Author 1', url: 'https:/url1.com', likes: 3 }
+const testBlog2 = { title: 'Blog title 2', author: 'Author 2', url: 'https:/url2.com', likes: 2 }
+const testBlog3 = { title: 'Blog title 3', author: 'Author 3', url: 'https:/url3.com', likes: 1 }
 
 describe('Blog app', function() {
   beforeEach(function() {
@@ -121,7 +121,7 @@ describe('Blog app', function() {
         cy.contains('create').click()
       })
 
-      it.only('A blog can be deleted by the correct user', function() {
+      it('A blog can be deleted by the correct user', function() {
         cy.contains(testBlog3.title)
 
         //User 2 cannot delete first blog (added by user 1)
@@ -136,6 +136,35 @@ describe('Blog app', function() {
         cy.get('.blog-div').contains(testBlog3.title).get('.blog-details-div').as('selectedBlogDetails')
         cy.get('@selectedBlogDetails').contains('button', 'remove').click()
         cy.get('.blog-div').should('have.length', 2)  //2 blogs remain after deleting blog 3
+      })
+
+      it.only('Blogs are ordered by likes', function() {
+        cy.contains(testBlog3.title)
+
+        //Inital order blog 1 > blog 2 > blog3 (0, 0, 0)
+        cy.get('.blog-div').eq(0).should('contain', testBlog1.title)
+        cy.get('.blog-div').eq(1).should('contain', testBlog2.title)
+        cy.get('.blog-div').eq(2).should('contain', testBlog3.title)
+
+        //Increase blog3 likes to 2
+        cy.get('.blog-div').contains(testBlog3.title).parent().as('selectedBlog')
+
+        cy.get('@selectedBlog').contains('view').click()
+
+        cy.get('@selectedBlog').get('.blog-details-div').contains('like').click().click() //Increase 0 > 2 likes
+
+        //Increase blog2 likes to 1
+        cy.get('.blog-div').contains(testBlog2.title).parent().as('selectedBlog')
+
+        cy.get('@selectedBlog').contains('view').click()
+
+        cy.get('@selectedBlog').get('.blog-details-div').contains('like').click() //Increase 0 > 1 likes
+
+        //blog3 > blog2 > blog1 after page refresh (2, 1, 0)
+        cy.reload()
+        cy.get('.blog-div').eq(0).should('contain', testBlog3.title)
+        cy.get('.blog-div').eq(1).should('contain', testBlog2.title)
+        cy.get('.blog-div').eq(2).should('contain', testBlog1.title)
       })
     })
   })
